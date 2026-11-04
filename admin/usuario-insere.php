@@ -49,8 +49,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Redirecionar para a página usuário.php
         header("location:usuarios.php");
         exit;
-    } catch (Throwable $erro) {
+    } catch (InvalidArgumentException $erro) {
+        // Primeiro cacth: para erros de validação.
+        // Exemplos: nome inválido, e-mail incorreto, senha inadequada etc.
         $mensagemErro = $erro->getMessage();
+    } catch (Throwable $erro) {
+        Utils::registrarLog($erro);
+        $mensagemErro = "Não foi possível cadastrar o usuário. Tente novamente.";
     }
 }
 
