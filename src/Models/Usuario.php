@@ -19,7 +19,7 @@ final class Usuario
         string $email,
         string $senha,
         TipoUsuario $tipo = TipoUsuario::EDITOR,
-        ?int $id
+        ?int $id = null
     ) {
         $this->nome = $nome;
         $this->email = $email;
