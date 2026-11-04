@@ -4,6 +4,7 @@ use Microblog\Enums\TipoUsuario;
 use Microblog\Helpers\Utils;
 use Microblog\Helpers\Validacoes;
 use Microblog\Models\Usuario;
+use Microblog\Services\UsuarioServico;
 
 require_once __DIR__ . "../../vendor/autoload.php";
 
@@ -16,27 +17,41 @@ $tipo = "editor"; // valor padrão conforme formulário
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     /* Normaliza as entradas de dados do formulário para minimizar
     problemas de segurança e inconsciências. */
-    $nome = Utils::normalizarEntrada($_POST['nome'] ?? "");
-    $email = Utils::normalizarEntrada($_POST['email'] ?? "", "email");
-    $senhaBruta = $_POST['senha'];
-    $tipo = Utils::normalizarEntrada($_POST['tipo'] ?? "");
+    try {
+        $nome = Utils::normalizarEntrada($_POST['nome'] ?? "");
+        $email = Utils::normalizarEntrada($_POST['email'] ?? "", "email");
+        $senhaBruta = $_POST['senha'];
+        $tipo = Utils::normalizarEntrada($_POST['tipo'] ?? "");
 
-    // Aplica validações aos valores dos campos do formulário
-    Validacoes::validarNome($nome);
-    Validacoes::validarEmail($email);
-    Validacoes::validarSenha($senhaBruta);
-    Validacoes::validarTipo($tipo);
+        // Aplica validações aos valores dos campos do formulário
+        Validacoes::validarNome($nome);
+        Validacoes::validarEmail($email);
+        Validacoes::validarSenha($senhaBruta);
+        Validacoes::validarTipo($tipo);
 
-    // Se todas as validações passaram:
+        // Se todas as validações passaram:
 
-    // Codificar a senha
-    $senha = Utils::codificarSenha($senhaBruta);
+        // Codificar a senha
+        $senha = Utils::codificarSenha($senhaBruta);
 
-    // Converter a string do tipo de usuário (vindo do formulário) para o ENUM
-    $tipoEnum = TipoUsuario::from($tipo);
+        // Converter a string do tipo de usuário (vindo do formulário) para o ENUM
+        $tipoEnum = TipoUsuario::from($tipo);
 
-    // Criar um objeto Usuário com os dados normalizados e validados
-    $usuario = new Usuario($nome, $email, $senha, $tipoEnum, null);
+        // Criar um objeto Usuário com os dados normalizados e validados
+        $usuario = new Usuario($nome, $email, $senha, $tipoEnum);
+
+        // Criar um serviço para usuário
+        $usuarioServico = new UsuarioServico();
+
+        // Inserir o usuário atraves do serviço;
+        $usuarioServico->inserir($usuario);
+
+        // Redirecionar para a página usuário.php
+        header("location:usuarios.php");
+        exit;
+    } catch (Throwable $erro) {
+        $mensagemErro = $erro->getMessage();
+    }
 }
 
 require_once __DIR__ . '/../includes/cabecalho-admin.php'; 
