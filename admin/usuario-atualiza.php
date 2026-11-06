@@ -3,6 +3,7 @@
 use Microblog\Enums\TipoUsuario;
 use Microblog\Helpers\Utils;
 use Microblog\Helpers\Validacoes;
+use Microblog\Models\Usuario;
 use Microblog\Services\UsuarioServico;
 
 require_once __DIR__ . "../../vendor/autoload.php";
@@ -46,12 +47,34 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
         Validacoes::validarEmail($email);
         Validacoes::validarTipo($tipo);
         $tipoEnum = TipoUsuario::from($tipo);
+        
+        $senhaBruta = $_POST['senha'] ?? '';
 
-    } catch (InvalidArgumentException $e) {
+        /* Se a senha não foi preenchida, mantenha a senha atual. */
+        /* Se o campo senha for preenchido, verificar se é a mesma senha. */
+        /* Se for a mesma, não faz nada. Se for uma nova senha, codifica (faz o hash) */
+        if($senhaBruta === ""){
+            $senha = $dadosUsuario['senha'];
+        } else {
+            Validacoes::validarSenha($senhaBruta);
+            $senha = Utils::verificarSenha($senhaBruta, $dadosUsuario['senha']);
+        }
+
+        // Criando um objeto com os dados do usuario visando a atualização no banco
+        $usuario = new Usuario($nome, $email, $senha, $tipoEnum, $id);
+
+        // Chamamos o serviço responsável por atualizar o usuario
+        $usuarioServico->atualizar($usuario);
+
+        // Se tudo der certo, redirecionamos:
+        header("location:usuarios.php");
+        exit;
+
+    } catch (InvalidArgumentException $e) { // se validações falharem
         $mensagemErro = $e->getMessage();
-    } catch (Throwable $e){
+    } catch (Throwable $e){ // se qualquer outro erro/exceção acontecer
         Utils::registrarLog($e);
-        $mensagemErro = "Não foi possível cadastrar o usuário. Tente novamente.";
+        $mensagemErro = "Não foi possível atualizar o usuário. Tente novamente";
     }
 }
 
