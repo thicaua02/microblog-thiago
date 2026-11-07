@@ -5,7 +5,7 @@ namespace Microblog\Models;
 final class Categoria
 {
 
-    private int $id;
+    private ?int $id = null;
     private string $nome;
 
     public function __construct(string $nome, int $id)
