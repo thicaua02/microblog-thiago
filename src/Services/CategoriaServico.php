@@ -1,5 +1,7 @@
 <?php
+namespace Microblog\Services;
 
+use Exception;
 use Microblog\Database\ConexaoBD;
 use Microblog\Helpers\Utils;
 use Microblog\Models\Categoria;
@@ -17,7 +19,7 @@ final class CategoriaServico {
     public function listarTodos(): array {
         try {
             $consulta = $this->conexao->query(
-                "SELECT nome FROM categorias ORDER BY nome");
+                "SELECT id, nome FROM categorias ORDER BY nome");
             return $consulta->fetchAll();
         } catch (PDOException $erro) {
             Utils::registrarLog($erro);
