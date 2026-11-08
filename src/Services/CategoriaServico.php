@@ -42,7 +42,7 @@ final class CategoriaServico {
     public function buscarPorId(int $id): ?array {
         try {
             $consulta = $this->conexao->prepare(
-                "SELECT nome FROM categorias WHERE id = :id");
+                "SELECT * FROM categorias WHERE id = :id");
             $consulta->bindValue(":id", $id);
             $consulta->execute();
             return $consulta->fetch();
