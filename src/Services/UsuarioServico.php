@@ -89,4 +89,16 @@ final class UsuarioServico {
             throw new Exception("Erro ao atualizar usuário");
         }
     }
+
+    public function excluir(int $id) : void {
+        $sql = "DELETE FROM usuarios WHERE id = :id";
+        try {
+            $consulta = $this->conexao->prepare($sql);
+            $consulta->bindValue(":id", $id);
+            $consulta->execute();
+        } catch (PDOException $erro) {
+            Utils::registrarLog($erro);
+            throw new Exception("Erro ao excluir categoria");
+        }
+    }
 }
