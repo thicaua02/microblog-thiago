@@ -64,4 +64,16 @@ final class CategoriaServico {
             throw new Exception("Erro ao atualizar categoria.");
         }
     }
+
+    public function excluir(int $id) : void {
+        $sql = "DELETE FROM categorias WHERE id = :id";
+        try {
+            $consulta = $this->conexao->prepare($sql);
+            $consulta->bindValue(":id", $id);
+            $consulta->execute();
+        } catch (PDOException $erro) {
+            Utils::registrarLog($erro);
+            throw new Exception("Erro ao excluir categoria");
+        }
+    }
 } 
